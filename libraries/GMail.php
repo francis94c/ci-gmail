@@ -7,7 +7,7 @@ require_once('GMailUtil.php');
 
 class GMail {
 
-  private const AUTH_URL = 'https://accounts.google.com/o/oauth2/auth';
+  const AUTH_URL = 'https://accounts.google.com/o/oauth2/auth';
   private $ci;
   private $clientId;
 
