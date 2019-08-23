@@ -1,0 +1,26 @@
+<phpunit bootstrap="travis-splint-0.0.8/index.php"
+	colors="true"
+	convertErrorsToExceptions="true"
+	convertNoticesToExceptions="true"
+	convertWarningsToExceptions="true"
+	processIsolation="false"
+	stopOnFailure="false"
+	verbose="true"
+	testdox="true">
+	<testsuites>
+		<testsuite name="GMail API Test Suite">
+			<file>travis-splint-0.0.8/application/splints/francis94c/ci-gmail/phpunit/GMailAPITest.php</file>
+		</testsuite>
+	</testsuites>
+	<logging>
+		<log type="coverage-clover" target="./build/logs/clover.xml"/>
+	</logging>
+	<filter>
+		<whitelist addUncoveredFilesFromWhitelist="true">
+			<directory suffix=".php">./travis-splint-0.0.8/application/splints/francis94c/ci-gmail</directory>
+			<exclude>
+				<file>travis-splint-0.0.8/application/splints/francis94c/ci-gmail/phpunit/GMailAPITest.php</file>
+			</exclude>
+		</whitelist>
+  </filter>
+</phpunit>
