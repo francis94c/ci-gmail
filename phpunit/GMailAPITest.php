@@ -33,7 +33,7 @@ class GMailAPITest extends TestCase {
   public function testAuthorizeURL():void {
     $this->assertEquals(
       GMail::AUTH_URL.'?client_id=abcde&redirect_uri=http://example.com&scope='.GMailScopes::LABELS.'&response_type=code',
-      $this->gmail->getAuthorizeUrl(GMailScopes::LABELS, 'https://example.com')
+      self::$ci->gmail->getAuthorizeUrl(GMailScopes::LABELS, 'https://example.com')
     );
   }
 }
