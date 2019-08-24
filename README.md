@@ -2,3 +2,7 @@
 
 # ci-gmail
 GMail API for Code Igniter
+
+This package page is still in development.
+
+Contribution docs coming soon.
