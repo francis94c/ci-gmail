@@ -28,9 +28,16 @@ class GMail {
    * @param  string $responseType Response type. 'code' by default.
    * @return string               Authorize URL
    */
-  public function getAuthorizeUrl(string $scope, string $redirectUri='urn:ietf:wg:oauth:2.0:oob', string $responseType='code'):string {
+  public function getAuthorizeUrl(string $scope, string $redirectUri='urn:ietf:wg:oauth:2.0:oob', string $responseType='code', string $accessType='offline'):string {
     if ($scope == null) throw new Exception("GMail scope cannot be null");
-    return self::AUTH_URL."?client_id=$this->clientId&redirect_uri=$redirectUri&scope=$scope&response_type=$responseType";
+    return self::AUTH_URL."?client_id=$this->clientId&redirect_uri=$redirectUri&scope=$scope&response_type=$responseType&access_type=$accessType";
+  }
+  /**
+   * [getClientId Get Client ID.]
+   * @return null|string Client ID.
+   */
+  public function getClientId():?string {
+    return $this->clientId;
   }
 }
 ?>
