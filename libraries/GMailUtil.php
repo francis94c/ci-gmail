@@ -22,14 +22,14 @@ class URLQueryBuilder {
    * @param string $key [description]
    * @param string $val [description]
    */
-  function set(string $key, string $val):void {
+  public function set(string $key, string $val):void {
     $this->query[$key] = $val;
   }
   /**
    * [build description]
    * @return [type] [description]
    */
-  function build():string {
+  public function build():string {
     $queryString = '?';
     foreach($this->query as $key => $val) {
       $queryString += $key."=".rawurlencode($val)."&";

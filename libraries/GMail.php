@@ -31,13 +31,13 @@ class GMail {
    */
   public function getAuthorizeUrl(string $scope, string $redirectUri='urn:ietf:wg:oauth:2.0:oob', string $responseType='code', string $accessType='offline'):string {
     if ($scope == null) throw new Exception("GMail scope cannot be null");
-    return self::AUTH_URL . new URLQueryBuilder([
+    return self::AUTH_URL . (new URLQueryBuilder([
       'client_id'     => $this->clientId,
       'redirect_uri'  => $redirectUri,
       'scope'         => $scope,
       'response_type' => $responseType,
       'access_type'   => $accessType
-    ]).build();
+    ]))->build();
   }
   /**
    * [getToken description]
