@@ -9,9 +9,12 @@ class GMail {
 
   const AUTH_URL  = 'https://accounts.google.com/o/oauth2/auth';
   const TOKEN_URL = 'https://accounts.google.com/o/oauth2/token';
-  private $ci;
   private $clientId;
 
+  function __construct($params=null) {
+    get_instance()->load->splint('francis94c/ci-gmail', '%curl');
+    $this->clientId = $params['client_id'] ?? $this->clientId;
+  }
   /**
    * [init Initialize library with cofigs. Can be called multiple times to set
    *       config items]
@@ -31,13 +34,13 @@ class GMail {
    */
   public function getAuthorizeUrl(string $scope, string $redirectUri='urn:ietf:wg:oauth:2.0:oob', string $responseType='code', string $accessType='offline'):string {
     if ($scope == null) throw new Exception("GMail scope cannot be null");
-    return self::AUTH_URL . (new URLQueryBuilder([
+    return self::AUTH_URL . build_url_query([
       'client_id'     => $this->clientId,
       'redirect_uri'  => $redirectUri,
       'scope'         => $scope,
       'response_type' => $responseType,
       'access_type'   => $accessType
-    ]))->build();
+    ], false);
   }
   /**
    * [getToken description]
