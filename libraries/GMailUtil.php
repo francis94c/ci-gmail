@@ -32,7 +32,7 @@ class URLQueryBuilder {
   public function build():string {
     $queryString = '?';
     foreach($this->query as $key => $val) {
-      $queryString += $key."=".rawurlencode($val)."&";
+      $queryString .= $key."=".rawurlencode($val)."&";
     }
     return substr($queryString, 0, strlen($queryString) - 1);
   }
