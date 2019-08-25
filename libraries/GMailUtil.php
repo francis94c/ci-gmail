@@ -2,38 +2,46 @@
 declare(strict_types=1);
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class URLQueryBuilder {
+class GMailCURL {
 
-  /**
-   * [private description]
-   * @var [type]
-   */
-  private $query = [];
+  const GET  = 'GET';
+  const POST = 'POST';
 
-  function __construct(array $query=null) {
-    if ($query != null) {
-      foreach ($query as $key => $val) {
-        $this->query[$key] = $val;
+  private $method;
+  private $userAgent;
+
+  function __construct(string $method, string $userAgent='CodeIgniter GMail API') {
+    $this->method = $method;
+    $this->userAgent = $userAgent;
+  }
+
+  function __invoke(string $url, array $header=[], mixed $body=null):array {
+    if ($body != null) $body = json_encode($body);
+
+    $ch = curl_init($url);
+
+    // Defaults.
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+    // Header.
+    $header[] = 'Content-Type: application/json';
+    $header[] = 'User-Agent: '.$this->userAgent;
+    if ($body != null) $header[] = 'Content-Length: '.strlen($body);
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    // Request Method and Body.
+    if ($this->method == self::POST) {
+      curl_setopt($ch, CURLOPT_POST, true);
+      if ($body != null) {
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
       }
     }
-  }
-  /**
-   * [set description]
-   * @param string $key [description]
-   * @param string $val [description]
-   */
-  public function set(string $key, string $val):void {
-    $this->query[$key] = $val;
-  }
-  /**
-   * [build description]
-   * @return [type] [description]
-   */
-  public function build():string {
-    $queryString = '?';
-    foreach($this->query as $key => $val) {
-      $queryString .= $key."=".rawurlencode($val)."&";
-    }
-    return substr($queryString, 0, strlen($queryString) - 1);
+    // Exec.
+    $result = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    return [
+      'code'   => $code,
+      'result' => $result
+    ];
   }
 }
