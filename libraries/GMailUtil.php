@@ -39,9 +39,6 @@ class GMailCURL {
     $result = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    return [
-      'code'   => $code,
-      'result' => $result
-    ];
+    return [$code, $result];
   }
 }

@@ -9,6 +9,7 @@ class GMail {
 
   const AUTH_URL  = 'https://accounts.google.com/o/oauth2/auth';
   const TOKEN_URL = 'https://accounts.google.com/o/oauth2/token';
+  const HTTP_CODE = 'http_code';
   private $clientId;
   private $clientSecret;
   private $redirectUri = 'urn:ietf:wg:oauth:2.0:oob';
@@ -55,14 +56,21 @@ class GMail {
    */
   public function getToken(string $code, string $redirectUri=null):?array {
     $redirectUri = $redirectUri ?? $this->redirectUri;
-    $result = (new GMailCURL(GMailCURL::POST))(
+    list($code, $result) = (new GMailCURL(GMailCURL::POST))(
       self::TOKEN_URL . build_url_query([
         'code'          => $code,
         'client_id'     => $this->clientId,
         'client_secret' => $this->clientSecret,
-        'redirect_uri'  => $redirectUri
+        'redirect_uri'  => $redirectUri,
+        'grant_type'    => 'authorization_code'
       ], false)
     );
+    if ($result !== false) {
+      $result = json_decode($result['result'], true);
+      $result[self::HTTP_CODE] = $code;
+      return $result;
+    }
+    return null;
   }
   /**
    * [getClientId Get Client ID.]
