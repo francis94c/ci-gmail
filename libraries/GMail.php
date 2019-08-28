@@ -9,7 +9,7 @@ class GMail {
 
   const AUTH_URL  = 'https://accounts.google.com/o/oauth2/auth';
   const TOKEN_URL = 'https://accounts.google.com/o/oauth2/token';
-  const API       = 'https://www.googleapis.com/gmail/v1/';
+  const API       = 'https://www.googleapis.com/gmail/v1/users/';
   const HTTP_CODE = 'http_code';
   private $clientId;
   private $clientSecret;
@@ -94,7 +94,7 @@ class GMail {
    */
   public function getProfile(string $user='me'):?array {
     list($code, $response) = (new GMailCURL(GMailCURL::GET))(
-      self::API . "users/$user/profile",
+      self::API . "$user/profile",
       ["Authorization: Bearer $this->token"]
     );
     if ($response !== false) return $this->process_response($code, $response);
