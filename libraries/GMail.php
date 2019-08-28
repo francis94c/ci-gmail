@@ -14,6 +14,7 @@ class GMail {
   private $clientId;
   private $clientSecret;
   private $redirectUri = 'urn:ietf:wg:oauth:2.0:oob';
+  private $token;
 
   function __construct($params=null) {
     get_instance()->load->splint('francis94c/ci-gmail', '%curl');
@@ -29,6 +30,13 @@ class GMail {
     $this->clientId = $config['client_id'] ?? $this->clientId;
     $this->clientSecret = $config['client_secret'] ?? $this->clientSecret;
     $this->redirectUri = $config['redirect_uri'] ?? $this->redirectUri;
+  }
+  /**
+   * [setAuthorizationToken description]
+   * @param string $token [description]
+   */
+  public function setAuthorizationToken(string $token):void {
+    $this->token = $token;
   }
   /**
    * [getClientId Get Client ID.]
@@ -82,6 +90,30 @@ class GMail {
       return $result;
     }
     return null;
+  }
+  /**
+   * [getProfile description]
+   * @param  string $user [description]
+   * @return [type]       [description]
+   */
+  public function getProfile(string $user='me'):?array {
+    list($code, $response) = (new GMailCURL(GMailCURL::GET))(
+      self::API . "users/$user/profile",
+      ["Authorization: Bearer $this->token"]
+    );
+    if ($result !== false) return $this->process_result($code, $result);
+    return null;
+  }
+  /**
+   * [process_result description]
+   * @param  int    $code   [description]
+   * @param  string $result [description]
+   * @return [type]         [description]
+   */
+  private function process_result(int $code, string $result) {
+    $result = json_decode($result, true);
+    $result[self::HTTP_CODE] = $code;
+    return $result;
   }
 }
 ?>
