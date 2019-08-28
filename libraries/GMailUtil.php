@@ -40,9 +40,9 @@ class GMailCURL {
       }
     }
     // Exec.
-    $result = curl_exec($ch);
+    $response = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
-    return [$code, $result];
+    return [$code, $response];
   }
 }

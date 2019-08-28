@@ -75,7 +75,7 @@ class GMail {
    */
   public function getToken(string $code, string $redirectUri=null):?array {
     $redirectUri = $redirectUri ?? $this->redirectUri;
-    list($code, $result) = (new GMailCURL(GMailCURL::POST))(
+    list($code, $response) = (new GMailCURL(GMailCURL::POST))(
       self::TOKEN_URL . build_url_query([
         'code'          => $code,
         'client_id'     => $this->clientId,
@@ -84,11 +84,7 @@ class GMail {
         'grant_type'    => 'authorization_code'
       ], false)
     );
-    if ($result !== false) {
-      $result = json_decode($result, true);
-      $result[self::HTTP_CODE] = $code;
-      return $result;
-    }
+    if ($response !== false)$this->process_response($code, $response);
     return null;
   }
   /**
@@ -101,19 +97,19 @@ class GMail {
       self::API . "users/$user/profile",
       ["Authorization: Bearer $this->token"]
     );
-    if ($result !== false) return $this->process_result($code, $result);
+    if ($response !== false) return $this->process_response($code, $response);
     return null;
   }
   /**
-   * [process_result description]
+   * [process_response description]
    * @param  int    $code   [description]
-   * @param  string $result [description]
+   * @param  string $response [description]
    * @return [type]         [description]
    */
-  private function process_result(int $code, string $result) {
-    $result = json_decode($result, true);
-    $result[self::HTTP_CODE] = $code;
-    return $result;
+  private function process_response(int $code, string $response) {
+    $response = json_decode($response, true);
+    $response[self::HTTP_CODE] = $code;
+    return $response;
   }
 }
 ?>
