@@ -101,6 +101,40 @@ class GMail {
     return null;
   }
   /**
+   * [watch Causes push notifications to be sent on events which occur in the
+   * user's mailbox. Requires Google Cloud PubSub.
+   * see https://developers.google.com/gmail/api/v1/reference/users/watch]
+   * @param  string $topic             Topic to push events to.
+   * @param  string $userId            The ID/Email address of the user whose
+   *                                   mailbox event, are being listened to.
+   * @param  mixed  $labelIds          Narrow down labels in the mailbox, whose
+   *      [string|int]                 events are to be listened to.
+   * @param  string $labelFilterAction [description]
+   * @return [type]                    [description]
+   */
+  public function watch(string $topic, string $userId='me', mixed $labelIds=null, string $labelFilterAction='include'):?array {
+    $body = [
+      'topicName'         => $topic,
+      'labelFilterAction' => $labelFilterAction
+    ];
+
+    if ($labelIds != null) {
+      if (is_scalar($labelIds)) {
+        $body['labelIds'] = [$labelIds];
+      } elseif (is_array($labelIds)) {
+        $body['labelIds'] = $labelIds;
+      }
+    }
+
+    list($code, $response) = (new GMailCURL(GMailCURL::POST))(
+      self::API . "$userId/watch",
+      ["Authorization: Bearer $this->token"],
+      $body
+    );
+    if ($response !== false)$this->process_response($code, $response);
+    return null;
+  }
+  /**
    * [process_response description]
    * @param  int    $code   [description]
    * @param  string $response [description]
