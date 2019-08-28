@@ -23,11 +23,15 @@ class GMailCURL {
     // Defaults.
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+    if (ENVIRONMET == 'development') {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    }
     // Header.
     $header[] = 'Content-Type: application/json';
-    $header[] = 'User-Agent: '.$this->userAgent;
+    $header[] = 'Content-Length: 0';
     if ($body != null) $header[] = 'Content-Length: '.strlen($body);
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    curl_setopt(CURLOPT_USERAGENT, $this->userAgent);
     // Request Method and Body.
     if ($this->method == self::POST) {
       curl_setopt($ch, CURLOPT_POST, true);
