@@ -36,18 +36,21 @@ class GMail {
    * @param  string $scope        Access Scope.
    * @param  string $redirectUri  URL to redirect to after access is granted.
    * @param  string $responseType Response type. 'code' by default.
+   * @param  bool   $prompt       Add the prompt=consent query to the URL.
    * @return string               Authorize URL
    */
-  public function getAuthorizeUrl(string $scope, string $redirectUri=null, string $responseType='code', string $accessType='offline'):string {
+  public function getAuthorizeUrl(string $scope, string $redirectUri=null, string $responseType='code', string $accessType='offline', bool $prompt=false):string {
     $redirectUri = $redirectUri ?? $this->redirectUri;
     if ($scope == null) throw new Exception("GMail scope cannot be null");
-    return self::AUTH_URL . build_url_query([
+    $params = [
       'client_id'     => $this->clientId,
       'redirect_uri'  => $redirectUri,
       'scope'         => $scope,
       'response_type' => $responseType,
       'access_type'   => $accessType
-    ], false);
+    ];
+    if ($prompt) $params['prompt'] = 'consent';
+    return self::AUTH_URL . build_url_query($params, false);
   }
   /**
    * [getToken description]
@@ -66,7 +69,7 @@ class GMail {
       ], false)
     );
     if ($result !== false) {
-      $result = json_decode($result['result'], true);
+      $result = json_decode($result, true);
       $result[self::HTTP_CODE] = $code;
       return $result;
     }
