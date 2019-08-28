@@ -9,6 +9,7 @@ class GMail {
 
   const AUTH_URL  = 'https://accounts.google.com/o/oauth2/auth';
   const TOKEN_URL = 'https://accounts.google.com/o/oauth2/token';
+  const API       = 'https://www.googleapis.com/gmail/v1/';
   const HTTP_CODE = 'http_code';
   private $clientId;
   private $clientSecret;
@@ -28,6 +29,13 @@ class GMail {
     $this->clientId = $config['client_id'] ?? $this->clientId;
     $this->clientSecret = $config['client_secret'] ?? $this->clientSecret;
     $this->redirectUri = $config['redirect_uri'] ?? $this->redirectUri;
+  }
+  /**
+   * [getClientId Get Client ID.]
+   * @return null|string Client ID.
+   */
+  public function getClientId():?string {
+    return $this->clientId;
   }
   /**
    * [getAuthorizeUrl Gets/composes the authorize url to direct users to so they
@@ -74,13 +82,6 @@ class GMail {
       return $result;
     }
     return null;
-  }
-  /**
-   * [getClientId Get Client ID.]
-   * @return null|string Client ID.
-   */
-  public function getClientId():?string {
-    return $this->clientId;
   }
 }
 ?>
