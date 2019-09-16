@@ -8,13 +8,14 @@ require_once('GMailUtil.php');
 class GMail {
 
   const AUTH_URL  = 'https://accounts.google.com/o/oauth2/auth';
-  const TOKEN_URL = 'https://accounts.google.com/o/oauth2/token';
+  const TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
   const API       = 'https://www.googleapis.com/gmail/v1/users/';
   const HTTP_CODE = 'http_code';
   private $clientId;
   private $clientSecret;
   private $redirectUri = 'urn:ietf:wg:oauth:2.0:oob';
   private $token;
+  private $userAgent = 'CodeIgniter GMail API';
 
   function __construct($params=null) {
     get_instance()->load->splint('francis94c/ci-gmail', '%curl');
@@ -32,10 +33,10 @@ class GMail {
     $this->redirectUri = $config['redirect_uri'] ?? $this->redirectUri;
   }
   /**
-   * [setAuthorizationToken description]
+   * [setAccessToken description]
    * @param string $token [description]
    */
-  public function setAuthorizationToken(string $token):void {
+  public function setAccessToken(string $token):void {
     $this->token = $token;
   }
   /**
@@ -75,20 +76,71 @@ class GMail {
    */
   public function getToken(string $code, string $redirectUri=null):?array {
     $redirectUri = $redirectUri ?? $this->redirectUri;
-    list($code, $response) = (new GMailCURL(GMailCURL::POST))(
-      self::TOKEN_URL . build_url_query([
-        'code'          => $code,
-        'client_id'     => $this->clientId,
-        'client_secret' => $this->clientSecret,
-        'redirect_uri'  => $redirectUri,
-        'grant_type'    => 'authorization_code'
-      ], false)
-    );
-    if ($response !== false)$this->process_response($code, $response);
+    $ch = curl_init(self::TOKEN_URL);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+    if (ENVIRONMENT == 'development') {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    }
+    $body = http_build_query([
+      'code'          => $code,
+      'client_id'     => $this->clientId,
+      'client_secret' => $this->clientSecret,
+      'redirect_uri'  => $this->redirectUri,
+      'grant_type'    => 'authorization_code'
+    ]);
+    $header = [
+      'Content-Type: application/x-www-form-urlencoded',
+      'Content-Length: ' . strlen($body)
+    ];
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
+    // Request Method and Body.
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+    $response = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($response !== false) return $this->process_response($code, $response);
     return null;
   }
   /**
-   * [getProfile description]
+   * [refreshAccessToken description]
+   * @param  string $refreshToken [description]
+   * @return [type]               [description]
+   */
+  public function refreshAccessToken(string $refreshToken):?array {
+    $ch = curl_init(self::TOKEN_URL);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    curl_setopt($ch, CURLINFO_HEADER_OUT, true);
+    if (ENVIRONMENT == 'development') {
+      curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+    }
+    $body = http_build_query([
+      'refresh_token' => $refreshToken,
+      'client_id'     => $this->clientId,
+      'client_secret' => $this->clientSecret,
+      'grant_type'    => 'refresh_token'
+    ]);
+    $header = [
+      'Content-Type: application/x-www-form-urlencoded',
+      'Content-Length: ' . strlen($body)
+    ];
+    curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
+    curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
+    // Request Method and Body.
+    curl_setopt($ch, CURLOPT_POST, true);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $body);
+    // Exec.
+    $response = curl_exec($ch);
+    $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+    if ($response !== false) return $this->process_response($code, $response);
+    return null;
+  }
+  /**
+   * [getProfile Get user's profile
+   * see https://developers.google.com/gmail/api/v1/reference/users/getProfile]
    * @param  string $user [description]
    * @return [type]       [description]
    */
@@ -105,14 +157,14 @@ class GMail {
    * user's mailbox. Requires Google Cloud PubSub.
    * see https://developers.google.com/gmail/api/v1/reference/users/watch]
    * @param  string $topic             Topic to push events to.
-   * @param  string $userId            The ID/Email address of the user whose
-   *                                   mailbox event, are being listened to.
    * @param  mixed  $labelIds          Narrow down labels in the mailbox, whose
-   *      [string|int]                 events are to be listened to.
+   *                                   mailbox event, are being listened to.
+   *                                   events are to be listened to.
+   * @param  string $userId            The ID/Email address of the user whose
    * @param  string $labelFilterAction [description]
    * @return [type]                    [description]
    */
-  public function watch(string $topic, string $userId='me', mixed $labelIds=null, string $labelFilterAction='include'):?array {
+  public function watch(string $topic, $labelIds=null, string $userId='me', string $labelFilterAction='include'):?array {
     $body = [
       'topicName'         => $topic,
       'labelFilterAction' => $labelFilterAction
@@ -131,7 +183,7 @@ class GMail {
       ["Authorization: Bearer $this->token"],
       $body
     );
-    if ($response !== false)$this->process_response($code, $response);
+    if ($response !== false) return $this->process_response($code, $response);
     return null;
   }
   /**

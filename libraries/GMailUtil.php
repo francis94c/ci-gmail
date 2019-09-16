@@ -15,7 +15,7 @@ class GMailCURL {
     $this->userAgent = $userAgent;
   }
 
-  function __invoke(string $url, array $header=[], mixed $body=null):array {
+  function __invoke(string $url, array $header=[], array $body=null):array {
     if ($body != null) $body = json_encode($body);
 
     $ch = curl_init($url);
@@ -23,15 +23,18 @@ class GMailCURL {
     // Defaults.
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLINFO_HEADER_OUT, true);
-    if (ENVIRONMET == 'development') {
+    if (ENVIRONMENT == 'development') {
       curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
     }
     // Header.
     $header[] = 'Content-Type: application/json';
-    $header[] = 'Content-Length: 0';
-    if ($body != null) $header[] = 'Content-Length: '.strlen($body);
+    if ($body != null)  {
+      $header[] = 'Content-Length: '.strlen($body);
+    } else {
+      $header[] = 'Content-Length: 0';
+    }
     curl_setopt($ch, CURLOPT_HTTPHEADER, $header);
-    curl_setopt(CURLOPT_USERAGENT, $this->userAgent);
+    curl_setopt($ch, CURLOPT_USERAGENT, $this->userAgent);
     // Request Method and Body.
     if ($this->method == self::POST) {
       curl_setopt($ch, CURLOPT_POST, true);
