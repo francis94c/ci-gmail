@@ -56,7 +56,8 @@ class GMail {
    * @param  bool   $prompt       Add the prompt=consent query to the URL.
    * @return string               Authorize URL
    */
-  public function getAuthorizeUrl(string $scope, string $redirectUri=null, string $responseType='code', string $accessType='offline', bool $prompt=false):string {
+  public function getAuthorizeUrl(string $scope, string $redirectUri=null, string $responseType='code', string $accessType='offline', bool $prompt=false):string
+  {
     $redirectUri = $redirectUri ?? $this->redirectUri;
     if ($scope == null) throw new Exception("GMail scope cannot be null");
     $params = [
@@ -74,7 +75,8 @@ class GMail {
    * @param  string $code [description]
    * @return [type]       [description]
    */
-  public function getToken(string $code, string $redirectUri=null):?array {
+  public function getToken(string $code, string $redirectUri=null):?array
+  {
     $redirectUri = $redirectUri ?? $this->redirectUri;
     $ch = curl_init(self::TOKEN_URL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
@@ -160,7 +162,7 @@ class GMail {
    * @param  mixed  $labelIds          Narrow down labels in the mailbox, whose
    *                                   mailbox event, are being listened to.
    *                                   events are to be listened to.
-   * @param  string $userId            The ID/Email address of the user whose
+   * @param  string $userId            The ID/Email address of the user.
    * @param  string $labelFilterAction [description]
    * @return [type]                    [description]
    */
@@ -185,6 +187,21 @@ class GMail {
     );
     if ($response !== false) return $this->process_response($code, $response);
     return null;
+  }
+  /**
+   * [endWatch stop watch operations on given email ID]
+   * @date   2019-11-20
+   * @param  string     $userId ID or Email Address of the user.
+   * @return bool               [description]
+   */
+  public function endWatch(string $userId='me'):bool
+  {
+    list($code, $response) = (new GMailCURL(GMailCURL::POST))(
+      self::API . "$userId/stop",
+      ["Authorization: Bearer $this->token"]
+    );
+    if ($response !== false) return $code == 204;
+    return false;
   }
   /**
    * [process_response description]
