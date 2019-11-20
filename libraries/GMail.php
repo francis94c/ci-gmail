@@ -204,14 +204,31 @@ class GMail {
     return false;
   }
   /**
+   * [getLabels description]
+   * @date   2019-11-20
+   * @param  string     $userID [description]
+   * @return null|array         [description]
+   */
+  public function getLabels(string $userID='me'):?array
+  {
+    list($code, $response) = (new GMailCURL(GMailCURL::GET))(
+      self::API . "$userId/labels",
+      ["Authorization: Bearer $this->token"]
+    );
+    if ($response !== false) {
+      return json_decode($response)->labels;
+    }
+    return false;
+  }
+  /**
    * [process_response description]
    * @param  int    $code   [description]
    * @param  string $response [description]
    * @return [type]         [description]
    */
   private function process_response(int $code, string $response) {
-    $response = json_decode($response, true);
-    $response[self::HTTP_CODE] = $code;
+    $response = json_decode($response);
+    $response->{self::HTTP_CODE} = $code;
     return $response;
   }
 }
