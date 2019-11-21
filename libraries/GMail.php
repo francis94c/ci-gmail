@@ -209,7 +209,7 @@ class GMail {
    * @param  string     $userID [description]
    * @return null|array         [description]
    */
-  public function getLabels(string $userID='me'):?array
+  public function getLabels(string $userId='me'):?array
   {
     list($code, $response) = (new GMailCURL(GMailCURL::GET))(
       self::API . "$userId/labels",
@@ -218,7 +218,51 @@ class GMail {
     if ($response !== false) {
       return json_decode($response)->labels;
     }
-    return false;
+    return null;
+  }
+  /**
+   * [getEmails description]
+   * @date   2019-11-21
+   * @param  string     $userID           [description]
+   * @param  [type]     $labelIds         [description]
+   * @param  [type]     $q                [description]
+   * @param  [type]     $maxEmails        [description]
+   * @param  [type]     $pageToken        [description]
+   * @param  boolean    $includeSpamTrash [description]
+   * @param  [type]     $truncateAfter    [description]
+   * @return [type]                       [description]
+   */
+  public function getEmails(string $userId='me', array $labelIds=null,
+  string $q=null, int $maxEmails=null, string $pageToken=null, bool $includeSpamTrash=false,
+  $truncateAfter=null):?object
+  {
+    $query = [];
+
+    if ($labelIds != null) $query['labelIds'] = $labelIds;
+    if ($includeSpamTrash) $query['includeSpamTrash'] = $includeSpamTrash;
+    if ($q != null) $query['q'] = $q;
+    if ($pageToken != null) $query['pageToken'] = $pageToken;
+    if ($maxEmails != null) $query['maxResults'] = $maxEmails;
+
+    list($code, $response) = (new GMailCURL(GMailCURL::GET))(
+      self::API . "$userId/messages?" . http_build_query($query),
+      ["Authorization: Bearer $this->token"]
+    );
+
+    if ($response !== false) {
+      if ($truncateAfter != null && $code == 200) {
+        $response = json_decode($response);
+        $response->messages = array_filter($response->messages, function ($e) use ($truncateAfter) {
+          return strcmp($truncateAfter, $e->id) <= 0;
+        });
+        $response->{self::HTTP_CODE} = $code;
+        return $response;
+      }
+
+      return $this->process_response($code, $response);
+    }
+
+    return null;
   }
   /**
    * [process_response description]
