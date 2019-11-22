@@ -4,6 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 require_once('GMailScopes.php');
 require_once('GMailUtil.php');
+require_once('Message.php');
 
 class GMail {
 
@@ -19,6 +20,7 @@ class GMail {
 
   function __construct($params=null) {
     get_instance()->load->splint('francis94c/ci-gmail', '%curl');
+    get_instance()->load->splint('francis94c/ci-gmail', '%base64');
     if ($params != null) $this->init($params);
   }
 
@@ -221,19 +223,19 @@ class GMail {
     return null;
   }
   /**
-   * [getEmails description]
+   * [getMessages description]
    * @date   2019-11-21
-   * @param  string     $userID           [description]
+   * @param  string     $userId           [description]
    * @param  [type]     $labelIds         [description]
    * @param  [type]     $q                [description]
-   * @param  [type]     $maxEmails        [description]
+   * @param  [type]     $maxMessages      [description]
    * @param  [type]     $pageToken        [description]
    * @param  boolean    $includeSpamTrash [description]
    * @param  [type]     $truncateAfter    [description]
    * @return [type]                       [description]
    */
-  public function getEmails(string $userId='me', array $labelIds=null,
-  string $q=null, int $maxEmails=null, string $pageToken=null, bool $includeSpamTrash=false,
+  public function getMessages(string $userId='me', array $labelIds=null,
+  string $q=null, int $maxMessages=null, string $pageToken=null, bool $includeSpamTrash=false,
   $truncateAfter=null):?object
   {
     $query = [];
@@ -242,7 +244,7 @@ class GMail {
     if ($includeSpamTrash) $query['includeSpamTrash'] = $includeSpamTrash;
     if ($q != null) $query['q'] = $q;
     if ($pageToken != null) $query['pageToken'] = $pageToken;
-    if ($maxEmails != null) $query['maxResults'] = $maxEmails;
+    if ($maxMessages != null) $query['maxResults'] = $maxMessages;
 
     list($code, $response) = (new GMailCURL(GMailCURL::GET))(
       self::API . "$userId/messages?" . http_build_query($query),
@@ -261,6 +263,32 @@ class GMail {
 
       return $this->process_response($code, $response);
     }
+
+    return null;
+  }
+  /**
+   * [getMessage description]
+   * @date   2019-11-21
+   * @param  string       $userId          [description]
+   * @param  string       $messageId       [description]
+   * @param  string       $format          [description]
+   * @param  [type]       $metadataHeaders [description]
+   * @return Message|null                  [description]
+   */
+  public function getMessage(string $userId='me', string $messageId,
+  string $format='full', array $metadataHeaders=null):?Message
+  {
+    $query = [];
+
+    if ($format != 'full' && $format != null) $query['format'] = $format;
+    if ($metadataHeaders != null) $query['metadataHeaders'] = $metadataHeaders;
+
+    list($code, $response) = (new GMailCURL(GMailCURL::GET))(
+      self::API . "$userId/messages/$messageId?" . http_build_query($query),
+      ["Authorization: Bearer $this->token"]
+    );
+
+    if ($response !== false) return new Message($response);
 
     return null;
   }
