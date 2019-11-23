@@ -38,15 +38,6 @@ class Message
     }
   }
   /**
-   * [headers description]
-   * @date   2019-11-22
-   * @return array      [description]
-   */
-  public function headers():array
-  {
-    return $this->message->payload->headers;
-  }
-  /**
    * [isMultiPart description]
    * @date   2019-11-23
    * @return bool       [description]
