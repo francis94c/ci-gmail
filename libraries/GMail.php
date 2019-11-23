@@ -2,26 +2,31 @@
 declare(strict_types=1);
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-require_once('GMailScopes.php');
-require_once('GMailUtil.php');
-require_once('Message.php');
-
 class GMail {
 
   const AUTH_URL  = 'https://accounts.google.com/o/oauth2/auth';
   const TOKEN_URL = 'https://www.googleapis.com/oauth2/v4/token';
   const API       = 'https://www.googleapis.com/gmail/v1/users/';
   const HTTP_CODE = 'http_code';
+  const PACKAGE   = 'francis94c/ci-gmail';
   private $clientId;
   private $clientSecret;
   private $redirectUri = 'urn:ietf:wg:oauth:2.0:oob';
   private $token;
   private $userAgent = 'CodeIgniter GMail API';
 
-  function __construct($params=null) {
+  function __construct($params=null)
+  {
     get_instance()->load->splint('francis94c/ci-gmail', '%curl');
     get_instance()->load->splint('francis94c/ci-gmail', '%base64');
+
     if ($params != null) $this->init($params);
+
+    spl_autoload_register(function($name) {
+      $oldPath = set_include_path(APPPATH . 'splints/' . self::PACKAGE . '/libraries');
+      require("$name.php");
+      set_include_path($oldPath);
+    });
   }
 
   /**
