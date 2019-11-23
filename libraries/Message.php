@@ -14,6 +14,16 @@ class Message
     $this->message = json_decode($jsonString);
   }
   /**
+   * [__get description]
+   * @date   2019-11-23
+   * @param  string     $key [description]
+   * @return [type]          [description]
+   */
+  public function __get(string $key):string
+  {
+    return $this->message->{$key};
+  }
+  /**
    * [header description]
    * @date   2019-11-22
    * @param  string     $key [description]
@@ -37,15 +47,35 @@ class Message
     return $this->message->payload->headers;
   }
   /**
-   * [body description]
-   * @date   2019-11-22
-   * @return string     [description]
+   * [isMultiPart description]
+   * @date   2019-11-23
+   * @return bool       [description]
    */
-  public function body():?string
+  public function isMultiPart():bool
   {
-    if (isset($this->message->payload->body->data)) {
-      return base64url_decode($this->message->payload->body->data);
+    return isset($this->message->payload->parts);
+  }
+  /**
+   * [getSize description]
+   * @date   2019-11-23
+   * @return int        [description]
+   */
+  public function getSize():int
+  {
+    return $this->message->payload->body->size;
+  }
+  /**
+   * [body description]
+   * @date   2019-11-23
+   * @param  integer    $partId [description]
+   * @return [type]             [description]
+   */
+  public function body(int $partId=0)
+  {
+    if ($this->isMultiPart()) {
+      return new MessagePart($this->message->payload->parts[$partId]);
     }
-    return null;
+
+    return base64url_decode($this->message->payload->body->data);
   }
 }
