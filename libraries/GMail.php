@@ -23,9 +23,9 @@ class GMail {
     if ($params != null) $this->init($params);
 
     spl_autoload_register(function($name) {
-      $oldPath = set_include_path(APPPATH . 'splints/' . self::PACKAGE . '/libraries');
-      require("$name.php");
-      set_include_path($oldPath);
+      if (file_exists(APPPATH.'splints/'.self::PACKAGE."/libraries/$name.php")) {
+        require(APPPATH.'splints/'.self::PACKAGE."/libraries/$name.php");  
+      }
     });
   }
 
@@ -161,6 +161,7 @@ class GMail {
     if ($response !== false) return $this->process_response($code, $response);
     return null;
   }
+
   /**
    * [watch Causes push notifications to be sent on events which occur in the
    * user's mailbox. Requires Google Cloud PubSub.
@@ -195,6 +196,7 @@ class GMail {
     if ($response !== false) return $this->process_response($code, $response);
     return null;
   }
+
   /**
    * [endWatch stop watch operations on given email ID]
    * @date   2019-11-20
@@ -210,6 +212,7 @@ class GMail {
     if ($response !== false) return $code == 204;
     return false;
   }
+
   /**
    * [getLabels description]
    * @date   2019-11-20
@@ -260,7 +263,7 @@ class GMail {
       if ($truncateAfter != null && $code == 200) {
         $response = json_decode($response);
         $response->messages = array_filter($response->messages, function ($e) use ($truncateAfter) {
-          return strcmp($truncateAfter, $e->id) <= 0;
+          return strcmp($truncateAfter, $e->id) < 0;
         });
         $response->{self::HTTP_CODE} = $code;
         return $response;
