@@ -32,16 +32,17 @@ class MessagePart
   /**
    * [header description]
    * @date   2019-11-22
-   * @param  string     $key [description]
-   * @return string          [description]
+   * @param  string      $key [description]
+   * @return string|null      [description]
    */
-  public function header(string $key):string
+  public function header(string $key):?string
   {
     foreach ($this->part->headers as $header) {
       if ($header->name == $key) {
         return $header->value;
       }
     }
+    return null;
   }
   /**
    * [getSize description]

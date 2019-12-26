@@ -26,16 +26,17 @@ class Message
   /**
    * [header description]
    * @date   2019-11-22
-   * @param  string     $key [description]
-   * @return string          [description]
+   * @param  string      $key [description]
+   * @return string|null      [description]
    */
-  public function header(string $key):string
+  public function header(string $key):?string
   {
     foreach ($this->message->payload->headers as $header) {
       if ($header->name == $key) {
         return $header->value;
       }
     }
+    return null;
   }
   /**
    * [isMultiPart description]
@@ -64,6 +65,9 @@ class Message
   public function body(int $partId=0)
   {
     if ($this->isMultiPart()) {
+      // Set Parent ID.
+      $this->message->payload->parts[$partId]->id = $this->message->id;
+      
       return new MessagePart($this->message->payload->parts[$partId]);
     }
 
