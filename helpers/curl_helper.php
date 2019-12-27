@@ -13,6 +13,13 @@ if (!function_exists('build_url_query')) {
     if ($params == null) return null;
     $queryString = '?';
     foreach($params as $key => $val) {
+      if (is_array($val)) {
+        foreach ($val as $value) {
+          $queryString .= $key."=".($urlEncode ? rawurlencode($value) : $value)."&";
+        }
+        continue;
+      }
+
       $queryString .= $key."=".($urlEncode ? rawurlencode($val) : $val)."&";
     }
     return substr($queryString, 0, strlen($queryString) - 1);
