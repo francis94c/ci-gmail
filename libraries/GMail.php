@@ -24,7 +24,7 @@ class GMail {
 
     spl_autoload_register(function($name) {
       if (file_exists(APPPATH.'splints/'.self::PACKAGE."/libraries/$name.php")) {
-        require(APPPATH.'splints/'.self::PACKAGE."/libraries/$name.php");  
+        require(APPPATH.'splints/'.self::PACKAGE."/libraries/$name.php");
       }
     });
   }
@@ -255,7 +255,7 @@ class GMail {
     if ($maxMessages != null) $query['maxResults'] = $maxMessages;
 
     list($code, $response) = (new GMailCURL(GMailCURL::GET))(
-      self::API . "$userId/messages?" . http_build_query($query),
+      self::API . "$userId/messages" . build_url_query($query),
       ["Authorization: Bearer $this->token"]
     );
 
