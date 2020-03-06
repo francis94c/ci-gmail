@@ -63,7 +63,8 @@ class GMail {
    * @param  bool   $prompt       Add the prompt=consent query to the URL.
    * @return string               Authorize URL
    */
-  public function getAuthorizeUrl(string $scope, string $redirectUri=null, string $responseType='code', string $accessType='offline', bool $prompt=false):string
+  public function getAuthorizeUrl(string $scope, string $redirectUri=null,
+  string $responseType='code', string $accessType='offline', bool $prompt=false):string
   {
     $redirectUri = $redirectUri ?? $this->redirectUri;
     if ($scope == null) throw new Exception("GMail scope cannot be null");
@@ -82,7 +83,7 @@ class GMail {
    * @param  string $code [description]
    * @return [type]       [description]
    */
-  public function getToken(string $code, string $redirectUri=null):?array
+  public function getToken(string $code, string $redirectUri=null):?object
   {
     $redirectUri = $redirectUri ?? $this->redirectUri;
     $ch = curl_init(self::TOKEN_URL);
@@ -118,7 +119,8 @@ class GMail {
    * @param  string $refreshToken [description]
    * @return [type]               [description]
    */
-  public function refreshAccessToken(string $refreshToken):?array {
+  public function refreshAccessToken(string $refreshToken):?object
+  {
     $ch = curl_init(self::TOKEN_URL);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLINFO_HEADER_OUT, true);
@@ -153,7 +155,8 @@ class GMail {
    * @param  string $user [description]
    * @return [type]       [description]
    */
-  public function getProfile(string $user='me'):?array {
+  public function getProfile(string $user='me'):?object
+  {
     list($code, $response) = (new GMailCURL(GMailCURL::GET))(
       self::API . "$user/profile",
       ["Authorization: Bearer $this->token"]
@@ -174,7 +177,9 @@ class GMail {
    * @param  string $labelFilterAction [description]
    * @return [type]                    [description]
    */
-  public function watch(string $topic, $labelIds=null, string $userId='me', string $labelFilterAction='include'):?array {
+  public function watch(string $topic, $labelIds=null, string $userId='me',
+  string $labelFilterAction='include'):?object
+  {
     $body = [
       'topicName'         => $topic,
       'labelFilterAction' => $labelFilterAction
@@ -219,7 +224,7 @@ class GMail {
    * @param  string     $userID [description]
    * @return null|array         [description]
    */
-  public function getLabels(string $userId='me'):?array
+  public function getLabels(string $userId='me'):?object
   {
     list($code, $response) = (new GMailCURL(GMailCURL::GET))(
       self::API . "$userId/labels",
@@ -302,11 +307,11 @@ class GMail {
   }
   /**
    * [process_response description]
-   * @param  int    $code   [description]
+   * @param  int    $code     [description]
    * @param  string $response [description]
-   * @return [type]         [description]
+   * @return [type]           [description]
    */
-  private function process_response(int $code, string $response) {
+  private function process_response(int $code, string $response):?object {
     $response = json_decode($response);
     $response->{self::HTTP_CODE} = $code;
     return $response;
