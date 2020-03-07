@@ -236,7 +236,7 @@ class GMail {
    * @param  string     $userID [description]
    * @return null|array         [description]
    */
-  public function getLabels(string $userId='me'):?object
+  public function getLabels(string $userId='me'):?array
   {
     list($code, $response) = (new GMailCURL(GMailCURL::GET))(
       self::API . "$userId/labels",
@@ -345,7 +345,7 @@ class GMail {
   {
     return $this->lastResponseCode;
   }
-  
+
   /**
    * [process_response description]
    * @param  int    $code     [description]
