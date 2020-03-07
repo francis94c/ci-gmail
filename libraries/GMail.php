@@ -14,6 +14,8 @@ class GMail {
   private $redirectUri = 'urn:ietf:wg:oauth:2.0:oob';
   private $token;
   private $userAgent = 'CodeIgniter GMail API';
+  private $lastResponse;
+  private $lastResponseCode;
 
   function __construct($params=null)
   {
@@ -111,6 +113,8 @@ class GMail {
     $response = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    $this->lastResponse = $response;
+    $this->lastResponseCode = $code;
     if ($response !== false) return $this->process_response($code, $response);
     return null;
   }
@@ -146,6 +150,8 @@ class GMail {
     $response = curl_exec($ch);
     $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
+    $this->lastResponse = $response;
+    $this->lastResponseCode = $code;
     if ($response !== false) return $this->process_response($code, $response);
     return null;
   }
@@ -161,6 +167,8 @@ class GMail {
       self::API . "$user/profile",
       ["Authorization: Bearer $this->token"]
     );
+    $this->lastResponse = $response;
+    $this->lastResponseCode = $code;
     if ($response !== false) return $this->process_response($code, $response);
     return null;
   }
@@ -198,6 +206,8 @@ class GMail {
       ["Authorization: Bearer $this->token"],
       $body
     );
+    $this->lastResponse = $response;
+    $this->lastResponseCode = $code;
     if ($response !== false) return $this->process_response($code, $response);
     return null;
   }
@@ -214,6 +224,8 @@ class GMail {
       self::API . "$userId/stop",
       ["Authorization: Bearer $this->token"]
     );
+    $this->lastResponse = $response;
+    $this->lastResponseCode = $code;
     if ($response !== false) return $code == 204;
     return false;
   }
@@ -230,6 +242,8 @@ class GMail {
       self::API . "$userId/labels",
       ["Authorization: Bearer $this->token"]
     );
+    $this->lastResponse = $response;
+    $this->lastResponseCode = $code;
     if ($response !== false) {
       return json_decode($response)->labels;
     }
@@ -263,6 +277,9 @@ class GMail {
       self::API . "$userId/messages" . build_url_query($query),
       ["Authorization: Bearer $this->token"]
     );
+
+    $this->lastResponse = $response;
+    $this->lastResponseCode = $code;
 
     if ($response !== false) {
       if ($truncateAfter != null && $code == 200) {
@@ -301,10 +318,34 @@ class GMail {
       ["Authorization: Bearer $this->token"]
     );
 
+    $this->lastResponse = $response;
+    $this->lastResponseCode = $code;
+
     if ($response !== false) return new Message($response);
 
     return null;
   }
+
+  /**
+   * [getLastResponse description]
+   * @date   2020-03-07
+   * @return string     [description]
+   */
+  public function getLastResponse():string
+  {
+    return $this->lastResponse;
+  }
+
+  /**
+   * [getLastResponseCode description]
+   * @date   2020-03-07
+   * @return int        [description]
+   */
+  public function getLastResponseCode():int
+  {
+    return $this->lastResponseCode;
+  }
+  
   /**
    * [process_response description]
    * @param  int    $code     [description]
@@ -317,4 +358,3 @@ class GMail {
     return $response;
   }
 }
-?>
