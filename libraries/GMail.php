@@ -267,11 +267,11 @@ class GMail {
   {
     $query = [];
 
-    if ($labelIds != null) $query['labelIds'] = $labelIds;
+    if ($labelIds) $query['labelIds'] = $labelIds;
     if ($includeSpamTrash) $query['includeSpamTrash'] = $includeSpamTrash;
-    if ($q != null) $query['q'] = $q;
-    if ($pageToken != null) $query['pageToken'] = $pageToken;
-    if ($maxMessages != null) $query['maxResults'] = $maxMessages;
+    if ($q) $query['q'] = $q;
+    if ($pageToken) $query['pageToken'] = $pageToken;
+    if ($maxMessages) $query['maxResults'] = $maxMessages;
 
     list($code, $response) = (new GMailCURL(GMailCURL::GET))(
       self::API . "$userId/messages" . build_url_query($query),
@@ -296,6 +296,18 @@ class GMail {
 
     return null;
   }
+
+  /**
+   * [getLastMessageId description]
+   * @date   2020-03-08
+   * @return string|null [description]
+   */
+  public function getLastMessageId():?string
+  {
+    $messages = $this->getMessages();
+    return $messages->messages[0]->id ?? null;
+  }
+
   /**
    * [getMessage description]
    * @date   2019-11-21
