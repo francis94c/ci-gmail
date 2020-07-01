@@ -284,9 +284,11 @@ class GMail {
     if ($response !== false) {
       if ($truncateAfter != null && $code == 200) {
         $response = json_decode($response);
-        $response->messages = array_filter($response->messages, function ($e) use ($truncateAfter) {
-          return strcmp($truncateAfter, $e->id) < 0;
-        });
+        if ($response->messages) {
+          $response->messages = array_filter($response->messages, function ($e) use ($truncateAfter) {
+            return strcmp($truncateAfter, $e->id) < 0;
+          });
+        }
         $response->{self::HTTP_CODE} = $code;
         return $response;
       }
